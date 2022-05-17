@@ -428,9 +428,9 @@ showmenu(const char *name, const char *x[])
 static const char *opsmenu[] = {
 	"[s]       Shell                     ",
 	"[p]       Other program             ",
+	"[dth]     Enables DB_THREADS        ",
 	"[mount]   Mount a filesystem        ",
 	"[unmount] Unmount a filesystem      ",
-    "[dth]     Enables DB_Threads        ",
 	"[bootfs]  Set \"boot\" filesystem     ",
 	"[pf]      Print a file              ",
 	"[cd]      Change directory          ",
@@ -521,6 +521,15 @@ cmd_mainmenu(int n, char **a)
 	return 0;
 }
 
+static
+int
+cmd_dth(int n, char **a)
+{
+    dbflags = DB_THREADS;
+
+    return 0;
+}
+
 ////////////////////////////////////////
 //
 // Command table.
@@ -539,9 +548,9 @@ static struct {
 	/* operations */
 	{ "s",		cmd_shell },
 	{ "p",		cmd_prog },
+    { "dth",     cmd_dth},
 	{ "mount",	cmd_mount },
 	{ "unmount",	cmd_unmount },
-    { "dth",    dbflags},
 	{ "bootfs",	cmd_bootfs },
 	{ "pf",		printfile },
 	{ "cd",		cmd_chdir },
