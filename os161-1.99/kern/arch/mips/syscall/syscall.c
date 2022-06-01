@@ -198,6 +198,6 @@ enter_forked_process(struct trapframe *tf, unsigned long data2)
     (void) data2;
 #else
     (void)data2;
-    (void)td;
+    (void)tf;
 #endif
 }
