@@ -38,6 +38,7 @@
 
 #include <spinlock.h>
 #include <thread.h> /* required for struct threadarray */
+#include "opt-A2.h"
 
 struct addrspace;
 struct vnode;
@@ -69,7 +70,9 @@ struct proc {
 #endif
 
 	/* add more material here as needed */
+#if OPT_A2
     pid_t p_pid;
+#else
 
 };
 

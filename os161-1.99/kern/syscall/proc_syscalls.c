@@ -12,6 +12,8 @@
 #include <mips/trapframe.h>
 #include <clock.h>
 
+#include "opt-A2.h"
+
   /* this implementation of sys__exit does not do anything with the exit code */
   /* this needs to be fixed to get exit() and waitpid() working properly */
 
@@ -94,6 +96,7 @@ sys_waitpid(pid_t pid,
   return(0);
 }
 
+#if OPT_A2
 int sys_fork(pid_t *retval, struct trapframe *tf) {
     struct proc *nproc;
     nproc = proc_create_runprogram("child");
@@ -113,3 +116,4 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
     clocksleep (1);
     return 0;
 }
+#endif
