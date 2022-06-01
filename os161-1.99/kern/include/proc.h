@@ -49,7 +49,6 @@ struct semaphore;
  * Process structure.
  */
 struct proc {
-    pid_t p_pid;
 	char *p_name;			/* Name of this process */
 	struct spinlock p_lock;		/* Lock for this structure */
 	struct threadarray p_threads;	/* Threads in this process */
@@ -70,6 +69,8 @@ struct proc {
 #endif
 
 	/* add more material here as needed */
+    pid_t p_pid;
+
 };
 
 /* This is the process structure for the kernel and for kernel-only threads. */
