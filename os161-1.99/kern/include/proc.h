@@ -49,6 +49,7 @@ struct semaphore;
  * Process structure.
  */
 struct proc {
+    pid_t p_pid;
 	char *p_name;			/* Name of this process */
 	struct spinlock p_lock;		/* Lock for this structure */
 	struct threadarray p_threads;	/* Threads in this process */
