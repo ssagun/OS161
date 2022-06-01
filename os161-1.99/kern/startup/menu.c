@@ -525,6 +525,8 @@ static
 int
 cmd_dth(int n, char **a)
 {
+    (void)n;
+    (void)a;
     dbflags = DB_THREADS;
 
     return 0;

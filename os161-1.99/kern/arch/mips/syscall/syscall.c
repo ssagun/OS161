@@ -186,8 +186,11 @@ enter_forked_process(struct trapframe *tf, unsigned long data2)
     struct trapframe *oldtf = tf;
     struct trapframe *newtf = *oldtf;
 
+
     newtf.tf_epc += 4;
     newtf.tf_v0 = 0;
 
     mips_usermode(&newtf);
+    
+    (void) data2;
 }
