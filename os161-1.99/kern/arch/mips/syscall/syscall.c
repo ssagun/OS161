@@ -134,7 +134,7 @@ syscall(struct trapframe *tf)
 
 	    /* Add stuff here */
 #if OPT_A2
-    case 0:
+    case SYS_fork:
         err = sys_fork((pid_t *)&retval, tf);
         break;
 #endif
@@ -190,7 +190,7 @@ enter_forked_process(struct trapframe *tf, unsigned long data2)
     struct trapframe newtf = *oldtf;
 
     kfree(tf);
-    
+
     newtf.tf_epc += 4;
     newtf.tf_v0 = 0;
 
