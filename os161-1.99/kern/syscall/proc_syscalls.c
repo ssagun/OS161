@@ -9,6 +9,7 @@
 #include <thread.h>
 #include <addrspace.h>
 #include <copyinout.h>
+#include <mips/trapframe.h>
 #include <clock.h>
 
   /* this implementation of sys__exit does not do anything with the exit code */
@@ -104,8 +105,10 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
     struct trapframe *trapframe_for_child = kmalloc(sizeof(struct trapframe));
     memcpy(trapframe_for_child, tf, sizeof(struct trapframe));
 
-    int err = thread_fork("child_thread", nproc, enter_forked_process,
+    thread_fork("child_thread", nproc, (void *)&enter_forked_process,
                           (struct trapframe *)trapframe_for_child, 0);
+
+    (void) retval;
 
     clocksleep (1);
     return 0;
