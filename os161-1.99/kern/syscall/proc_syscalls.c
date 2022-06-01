@@ -111,7 +111,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
     thread_fork("child_thread", nproc, (void *)&enter_forked_process,
                           (struct trapframe *)trapframe_for_child, 0);
 
-    (void) retval;
+    *retval = nproc->p_pid;
 
     clocksleep (1);
     return 0;
