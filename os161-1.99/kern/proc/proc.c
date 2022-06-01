@@ -49,7 +49,9 @@
 #include <vnode.h>
 #include <vfs.h>
 #include <synch.h>
-#include <kern/fcntl.h>  
+#include <kern/fcntl.h>
+#include <limits.h>
+#include "opt-A2.h"
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
@@ -66,6 +68,10 @@ static volatile unsigned int proc_count;
 /* it would be better to use a lock here, but we use a semaphore because locks are not implemented in the base kernel */ 
 static struct semaphore *proc_count_mutex;
 /* used to signal the kernel menu thread when there are no processes */
+
+static volatile unsigned int pid_count;
+static struct semaphore *pid_count_mutex;
+
 struct semaphore *no_proc_sem;   
 #endif  // UW
 
@@ -207,7 +213,14 @@ proc_bootstrap(void)
   if (no_proc_sem == NULL) {
     panic("could not create no_proc_sem semaphore\n");
   }
-#endif // UW 
+#endif // UW
+#ifdef OPT_A2
+    pid_count = PID_MIN;
+  pid_count_mutex = sem_create("pid_count_mutex",1);
+  if (pid_count_mutex == NULL) {
+    panic("could not create pid_count_mutex semaphore\n");
+  }
+#endif
 }
 
 /*
@@ -270,6 +283,12 @@ proc_create_runprogram(const char *name)
 	proc_count++;
 	V(proc_count_mutex);
 #endif // UW
+#ifdef OPT_A2
+    P(pid_count_mutex);
+    proc->p_pid = pid_count;
+	pid_count++;
+	V(pid_count_mutex);
+#endif
 
 	return proc;
 }
