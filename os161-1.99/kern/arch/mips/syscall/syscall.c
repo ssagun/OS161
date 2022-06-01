@@ -35,6 +35,7 @@
 #include <thread.h>
 #include <current.h>
 #include <syscall.h>
+#include <proc.h>
 
 
 /*
@@ -191,6 +192,6 @@ enter_forked_process(struct trapframe *tf, unsigned long data2)
     newtf.tf_v0 = 0;
 
     mips_usermode(&newtf);
-    
+
     (void) data2;
 }
