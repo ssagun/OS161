@@ -132,6 +132,10 @@ syscall(struct trapframe *tf)
 #endif // UW
 
 	    /* Add stuff here */
+#ifdef OPT_A2
+    case SYS_fork:
+        err = sys_fork(&retval, tf);
+#endif
  
 	default:
 	  kprintf("Unknown syscall %d\n", callno);
@@ -177,7 +181,11 @@ syscall(struct trapframe *tf)
  * Thus, you can trash it and do things another way if you prefer.
  */
 void
-enter_forked_process(struct trapframe *tf)
+enter_forked_process(struct trapframe *tf, unsigned long data2)
 {
-	(void)tf;
+    struct trapframe *oldtf = tf;
+    struct trapframe *newtf = *oldtf;
+
+    newtf.tf_epc += 4;
+    newtf.tf_v0 = 0;
 }
