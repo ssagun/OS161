@@ -135,7 +135,7 @@ syscall(struct trapframe *tf)
 #if OPT_A2
     case SYS_fork:
         err = sys_fork(&retval, tf);
-        break
+        break;
 #endif
  
 	default:
