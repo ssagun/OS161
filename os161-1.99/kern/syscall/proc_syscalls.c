@@ -93,7 +93,6 @@ sys_waitpid(pid_t pid,
   return(0);
 }
 
-#if OPT_A2
 int sys_fork(pid_t *retval, struct trapframe *tf) {
     struct proc *nproc;
     nproc = proc_create_runprogram("child");
@@ -111,4 +110,3 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
     clocksleep (1);
     return 0;
 }
-#endif
