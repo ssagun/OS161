@@ -40,13 +40,45 @@ void sys__exit(int exitcode) {
   as = curproc_setas(NULL);
   as_destroy(as);
 
+#if OPT_A2
+  // for(unsigned i = 0; i < array_num(&p->p_children); i++) {
+  unsigned i = 0;
+  while(array_num(&p->p_children)) {
+      struct proc *temp_child = array_get(&p->p_children, i);
+      array_remove(&p->p_children, i);
+      spinlock_acquire(&temp_child->p_lock);
+      if(temp_child->p_exitstatus) {
+          spinlock_release(&temp_child->p_lock);
+          proc_destory(temp_child);
+      }
+      else {
+          temp_child->p_parent = NULL;
+          spinlock_release(&temp_child->p_lock);
+      }
+  }
+#endif
+
   /* detach this thread from its process */
   /* note: curproc cannot be used after this call */
   proc_remthread(curthread);
 
+#if OPT_A2
+  spinlock_acquire(&p->p_lock);
+  if(p->p_parent && p->p_parent->p_exitstatus == 0) {
+      p->p_exitstatus = 1;
+      p->p_exitcode = exitcode;
+      spinlock_release(&p->p_lock);
+  }
+  else{
+      spinlock_release(&p->p_lock);
+      proc_destroy(p);
+  }
+#else
+
   /* if this is the last user process in the system, proc_destroy()
      will wake up the kernel menu thread */
   proc_destroy(p);
+#endif
   
   thread_exit();
   /* thread_exit() does not return, so we should never get here */
@@ -105,6 +137,7 @@ sys_waitpid(pid_t pid,
 int sys_fork(pid_t *retval, struct trapframe *tf) {
     struct proc *nproc;
     nproc = proc_create_runprogram("child");
+    nproc->p_parent = curproc;
     // if(proc == NULL) {}
     struct addrspace *child_as;
     as_copy(curproc_getas(), &child_as);
@@ -115,6 +148,11 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
 
     thread_fork("child_thread", nproc, (void *)&enter_forked_process,
                           (struct trapframe *)trapframe_for_child, 0);
+    unsigned *flag;
+    array_add(curproc->p_children, nproc, flag);
+    if(!flag) {
+        panic("Array size invalid");
+    }
 
     *retval = nproc->p_pid;
 
