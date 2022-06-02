@@ -150,7 +150,7 @@ proc_destroy(struct proc *proc)
 		proc->p_cwd = NULL;
 	}
 #if OPT_A2
-	//array_destory(&proc->p_children);
+	array_destory(*proc->p_children);
 #endif
 
 
