@@ -72,6 +72,11 @@ struct proc {
 	/* add more material here as needed */
 #if OPT_A2
     pid_t p_pid;
+
+    struct array p_children;
+    struct proc *p_parent;
+    int p_exitcode;
+    int p_exitstatus;
 #endif
 
 };

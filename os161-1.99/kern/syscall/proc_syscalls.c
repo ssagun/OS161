@@ -20,7 +20,7 @@
 void sys__exit(int exitcode) {
 
   struct addrspace *as;
-  
+
   struct proc *p = curproc;
   /* for now, just include this to keep the compiler from complaining about
      an unused variable */

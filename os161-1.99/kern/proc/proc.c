@@ -51,6 +51,7 @@
 #include <synch.h>
 #include <kern/fcntl.h>
 #include <limits.h>
+#include <array.h>
 #include "opt-A2.h"
 
 /*
@@ -109,6 +110,13 @@ proc_create(const char *name)
 	proc->console = NULL;
 #endif // UW
 
+#if OPT_A2
+	proc->p_children = *array_create();
+	proc->p_parent = NULL;
+	proc->p_exitcode = 0;
+	proc->p_exitstatus = 0;
+#endif
+
 	return proc;
 }
 
@@ -141,6 +149,9 @@ proc_destroy(struct proc *proc)
 		VOP_DECREF(proc->p_cwd);
 		proc->p_cwd = NULL;
 	}
+#if OPT_A2
+	array_destory(&proc->p_children);
+#endif
 
 
 #ifndef UW  // in the UW version, space destruction occurs in sys_exit, not here
