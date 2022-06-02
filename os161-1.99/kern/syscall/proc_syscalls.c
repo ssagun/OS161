@@ -64,7 +64,7 @@ void sys__exit(int exitcode) {
 
 #if OPT_A2
   spinlock_acquire(&p->p_lock);
-  if(p->p_parent != NULL && p->p_parent->p_exitstatus == 0) {
+  if(p->p_parent != NULL) {
       p->p_exitstatus = 1;
       p->p_exitcode = exitcode;
       spinlock_release(&p->p_lock);
