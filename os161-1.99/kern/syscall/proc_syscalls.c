@@ -125,15 +125,17 @@ sys_waitpid(pid_t pid,
   struct proc *temp_child;
   struct proc *iterator;
   unsigned i;
+  int flag = 0
   for(i = 0; i < array_num(p->p_children); i++) {
       iterator = array_get(p->p_children, i);
       if(iterator->p_pid == pid) {
+          flag = 1;
           temp_child = array_get(p->p_children, i);
           array_remove(p->p_children, i);
           break;
       }
   }
-  if(i == array_num(p->p_children)) {
+  if(flag == 0)) {
       panic("Bruh give valid PID");
   }
 
