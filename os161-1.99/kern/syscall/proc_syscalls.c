@@ -47,7 +47,7 @@ void sys__exit(int exitcode) {
       struct proc *temp_child = array_get(p->p_children, i);
       array_remove(p->p_children, i);
       spinlock_acquire(&temp_child->p_lock);
-      if(temp_child->p_exitstatus == 1) {
+      if(temp_child->p_exitstatus == 0) {
           spinlock_release(&temp_child->p_lock);
           proc_destroy(temp_child);
       }
@@ -65,7 +65,7 @@ void sys__exit(int exitcode) {
 #if OPT_A2
   spinlock_acquire(&p->p_lock);
   if(p->p_parent != NULL) {
-      p->p_exitstatus = 1;
+      p->p_exitstatus = 0;
       p->p_exitcode = exitcode;
       spinlock_release(&p->p_lock);
   }
