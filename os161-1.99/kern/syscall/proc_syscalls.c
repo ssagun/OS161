@@ -125,7 +125,7 @@ sys_waitpid(pid_t pid,
   struct proc *temp_child;
   struct proc *iterator;
   unsigned i;
-  int flag = 0
+  int flag = 0;
   for(i = 0; i < array_num(p->p_children); i++) {
       iterator = array_get(p->p_children, i);
       if(iterator->p_pid == pid) {
