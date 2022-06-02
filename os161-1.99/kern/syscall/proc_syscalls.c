@@ -135,7 +135,7 @@ sys_waitpid(pid_t pid,
           break;
       }
   }
-  if(flag == 0)) {
+  if(flag == 0) {
       panic("Bruh give valid PID");
   }
 
