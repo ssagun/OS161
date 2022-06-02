@@ -121,10 +121,13 @@ sys_waitpid(pid_t pid,
   */
 
 #if OPT_A2
-  struct proc *p = cuproc;
+  struct proc *p = curproc;
   struct proc *temp_child;
-  for(unsigned i = 0; i < array_num(p->p_children); i++) {
-      if(array_get(p->p_children, i)->p_pid == pid) {
+  struct proc *iterator;
+  unsigned i;
+  for(i = 0; i < array_num(p->p_children); i++) {
+      iterator = array_get(p->p_children, i);
+      if(iterator->p_pid == pid) {
           temp_child = array_get(p->p_children, i);
           array_remove(p->p_children, i);
           break;
@@ -146,20 +149,19 @@ sys_waitpid(pid_t pid,
   proc_destroy(temp_child);
 
   exitstatus = _MKWAIT_EXIT(exitstatus);
+#endif
 
-#else
   if (options != 0) {
     return(EINVAL);
   }
   /* for now, just pretend the exitstatus is 0 */
-  exitstatus = 0;
+ // exitstatus = 0;
   result = copyout((void *)&exitstatus,status,sizeof(int));
   if (result) {
     return(result);
   }
   *retval = pid;
   return(0);
-#endif
 }
 
 #if OPT_A2
