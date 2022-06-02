@@ -120,6 +120,34 @@ sys_waitpid(pid_t pid,
      Fix this!
   */
 
+#if OPT_A2
+  struct proc *p = cuproc;
+  struct proc *temp_child;
+  for(unsigned i = 0; i < array_num(p->p_children); i++) {
+      if(array_get(p->p_children, i)->p_pid == pid) {
+          temp_child = array_get(p->p_children, i);
+          array_remove(p->p_children, i);
+          break;
+      }
+  }
+  if(i == array_num(p->p_children)) {
+      panic("Bruh give valid PID");
+  }
+
+  spinlock_acquire (& temp_child ->p_lock );
+  while (!temp_child->p_exitstatus) {
+      spinlock_release (& temp_child ->p_lock );
+      clocksleep (1);
+      spinlock_acquire (& temp_child ->p_lock );
+      }
+  spinlock_release (& temp_child ->p_lock );
+
+  exitstatus = temp_child->p_exitcode;
+  proc_destroy(temp_child);
+
+  exitstatus = _MKWAIT_EXIT(exitstatus);
+
+#else
   if (options != 0) {
     return(EINVAL);
   }
@@ -131,6 +159,7 @@ sys_waitpid(pid_t pid,
   }
   *retval = pid;
   return(0);
+#endif
 }
 
 #if OPT_A2
@@ -148,7 +177,6 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
 
     thread_fork("child_thread", nproc, (void *)&enter_forked_process,
                           (struct trapframe *)trapframe_for_child, 0);
-    
     array_add(curproc->p_children, nproc, NULL);
 
     *retval = nproc->p_pid;
