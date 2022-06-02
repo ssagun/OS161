@@ -49,7 +49,7 @@ void sys__exit(int exitcode) {
       spinlock_acquire(&temp_child->p_lock);
       if(temp_child->p_exitstatus) {
           spinlock_release(&temp_child->p_lock);
-          proc_destory(temp_child);
+          proc_destroy(temp_child);
       }
       else {
           temp_child->p_parent = NULL;
