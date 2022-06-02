@@ -53,7 +53,7 @@ void sys__exit(int exitcode) {
       }
       else {
           temp_child->p_parent = NULL;
-          //spinlock_release(&temp_child->p_lock);
+          spinlock_release(&temp_child->p_lock);
       }
   }
 #endif
