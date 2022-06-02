@@ -43,9 +43,9 @@ void sys__exit(int exitcode) {
 #if OPT_A2
   // for(unsigned i = 0; i < array_num(&p->p_children); i++) {
   unsigned i = 0;
-  while(array_num(&p->p_children)) {
-      struct proc *temp_child = array_get(&p->p_children, i);
-      array_remove(&p->p_children, i);
+  while(array_num(p->p_children)) {
+      struct proc *temp_child = array_get(p->p_children, i);
+      array_remove(p->p_children, i);
       spinlock_acquire(&temp_child->p_lock);
       if(temp_child->p_exitstatus) {
           spinlock_release(&temp_child->p_lock);

@@ -111,7 +111,7 @@ proc_create(const char *name)
 #endif // UW
 
 #if OPT_A2
-	proc->p_children = *array_create();
+	proc->p_children = array_create();
 	proc->p_parent = NULL;
 	proc->p_exitcode = 0;
 	proc->p_exitstatus = 0;
@@ -150,7 +150,7 @@ proc_destroy(struct proc *proc)
 		proc->p_cwd = NULL;
 	}
 #if OPT_A2
-	array_destory(&proc->p_children);
+	array_destroy(proc->p_children);
 #endif
 
 
