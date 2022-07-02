@@ -70,8 +70,10 @@ static volatile unsigned int proc_count;
 static struct semaphore *proc_count_mutex;
 /* used to signal the kernel menu thread when there are no processes */
 
+#if OPT_A2
 static volatile unsigned int pid_count;
 static struct semaphore *pid_count_mutex;
+#endif
 
 struct semaphore *no_proc_sem;   
 #endif  // UW
