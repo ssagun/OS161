@@ -164,6 +164,15 @@ lock_create(const char *name)
         }
         
         // add stuff here as needed
+    lock->lk_wchan = wchan_create(lock->lk_name);
+    if (lock->lk_wchan == NULL) {
+        kfree(lock->lk_name);
+        kfree(lock);
+        return NULL;
+    }
+    spinlock_init(&lock->lk_spinlock);
+    lock->lk_owner = NULL;
+    lock->lk_held = false;
         
         return lock;
 }
@@ -172,8 +181,12 @@ void
 lock_destroy(struct lock *lock)
 {
         KASSERT(lock != NULL);
+        KASSERT(lock->lk_owner == NULL);
 
         // add stuff here as needed
+
+         spinlock_cleanup(&lock->lk_spinlock);
+         wchan_destroy(lock->lk_wchan);
         
         kfree(lock->lk_name);
         kfree(lock);
@@ -182,27 +195,44 @@ lock_destroy(struct lock *lock)
 void
 lock_acquire(struct lock *lock)
 {
-        // Write this
+    KASSERT(lock != NULL);
+    KASSERT(lock->lk_held == false);
 
-        (void)lock;  // suppress warning until code gets written
+    spinlock_acquire(&lk->lk_spinlock);
+    while (lk->lk_held) {
+        wchan_lock(lk->lk_wchan);
+        spinlock_release( &lk->lk_spinlock );
+        wchan_sleep(lk->lk_wchan);
+        spinlock_acquire( &lk->lk_spinlock);
+    }
+    lk->lk_held = true;
+    lk->lk_owner = curthread; // curthread is current thread
+    spinlock_release(&lk->lk_spinlock);
 }
 
 void
 lock_release(struct lock *lock)
 {
-        // Write this
+    KASSERT(lock != NULL);
+    KASSERT(lock->lk_owner == curthread);
 
-        (void)lock;  // suppress warning until code gets written
+    spinlock_acquire(&lock->lk_spinlock);
+    lock->lk_owner = NULL;
+    wchan_wakeone(lock->lk_wchan);
+    spinlock_release(&lock->lk_spinlock);
 }
 
 bool
 lock_do_i_hold(struct lock *lock)
 {
-        // Write this
+    KASSERT(lock != NULL);
+    bool ans;
+    
+    spinlock_acquire(&lock->lk_spinlock);
+    ans = lock->lk_owner == curthread;
+    spinlock_release(&lock->lk_spinlock);
 
-        (void)lock;  // suppress warning until code gets written
-
-        return true; // dummy until code gets written
+    return ans;
 }
 
 ////////////////////////////////////////////////////////////

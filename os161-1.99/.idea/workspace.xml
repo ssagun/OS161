@@ -31,7 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="094818a6-292c-4278-95a3-195caf0bab81" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/kern/syscall/proc_syscalls.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall/proc_syscalls.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/include/synch.h" beforeDir="false" afterPath="$PROJECT_DIR$/kern/include/synch.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/thread/synch.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/thread/synch.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +77,9 @@
       <updated>1652740687623</updated>
       <workItem from="1652740688902" duration="2312000" />
       <workItem from="1654041637372" duration="1095000" />
-      <workItem from="1654194698345" duration="12942000" />
+      <workItem from="1654194698345" duration="14363000" />
+      <workItem from="1654612894530" duration="7000" />
+      <workItem from="1656787921097" duration="2100000" />
     </task>
     <servers />
   </component>
