@@ -198,16 +198,16 @@ lock_acquire(struct lock *lock)
     KASSERT(lock != NULL);
     KASSERT(lock->lk_held == false);
 
-    spinlock_acquire(&lk->lk_spinlock);
-    while (lk->lk_held) {
-        wchan_lock(lk->lk_wchan);
-        spinlock_release( &lk->lk_spinlock );
-        wchan_sleep(lk->lk_wchan);
-        spinlock_acquire( &lk->lk_spinlock);
+    spinlock_acquire(&lock->lk_spinlock);
+    while (lock->lk_held) {
+        wchan_lock(lockk->lk_wchan);
+        spinlock_release( &lock->lk_spinlock );
+        wchan_sleep(lock->lk_wchan);
+        spinlock_acquire( &lock->lk_spinlock);
     }
-    lk->lk_held = true;
-    lk->lk_owner = curthread; // curthread is current thread
-    spinlock_release(&lk->lk_spinlock);
+    lock->lk_held = true;
+    lock->lk_owner = curthread; // curthread is current thread
+    spinlock_release(&lock->lk_spinlock);
 }
 
 void
