@@ -200,7 +200,7 @@ lock_acquire(struct lock *lock)
 
     spinlock_acquire(&lock->lk_spinlock);
     while (lock->lk_held) {
-        wchan_lock(lockk->lk_wchan);
+        wchan_lock(lock->lk_wchan);
         spinlock_release( &lock->lk_spinlock );
         wchan_sleep(lock->lk_wchan);
         spinlock_acquire( &lock->lk_spinlock);
