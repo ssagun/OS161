@@ -207,7 +207,7 @@ lock_acquire(struct lock *lock)
         spinlock_acquire( &lock->lk_spnlk);
     }
     lock->lk_held = true;
-    lock->lk_owner = curthread; // curthread is current thread
+    lock->lk_owner = curthread;
     spinlock_release(&lock->lk_spnlk);
 }
 
