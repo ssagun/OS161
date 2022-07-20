@@ -48,9 +48,9 @@
 
 vaddr_t
 argcopy_out(vaddr_t *stackptr, char *str) {
-    int  n = stlren(str) + 1;
+    int  n = sizeof(str)/sizeof(char *) + 1;
     stackptr -= n;
-    stackptr -= stackptr % 4;
+    stackptr -= *stackptr % 4;
     return copyout(str, (userptr_t)stackptr, n);
 }
 
