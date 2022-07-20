@@ -33,6 +33,7 @@
  * that execv() needs to do more than this function does.
  */
 
+#include <stdlib.h>
 #include <types.h>
 #include <kern/errno.h>
 #include <kern/fcntl.h>
@@ -47,7 +48,7 @@
 #include <copyinout.h>
 
 vaddr_t
-argcopy_out(vaddr_t &stackptr, char *str) {
+argcopy_out(vaddr_t *stackptr, char *str) {
     int  n = stlren(str) + 1;
     stackptr -= n;
     stackptr -= stackptr % 4;
@@ -110,8 +111,8 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	//enter stuff here
 	char ** argv_user = malloc((nargs + 1) * sizeof(char *));
 
-	for(int i = 0; i < nargs; i++) {
-	    result = argcopy_out(*stackptr, args[i]);
+	for(unsigned int i = 0; i < nargs; i++) {
+	    result = argcopy_out(&stackptr, args[i]);
 	    if(result) {
 	        free(argv_user);
 	        return result;
