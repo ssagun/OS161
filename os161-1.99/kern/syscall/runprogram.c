@@ -122,8 +122,10 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	}
 
 	/* Warp to user mode. */
-	enter_new_process(nargs /*argc*/, (userptr_t) argv_user /*userspace addr of argv*/,
+	enter_new_process(nargs /*argc*/, (userptr_t) stackptr /*userspace addr of argv*/,
 			  ROUNDUP(stackptr, 8), entrypoint);
+
+	as_destroy(as);
 	
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
