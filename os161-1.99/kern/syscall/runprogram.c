@@ -108,22 +108,24 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	}
 
 	//enter stuff here
+	vaddr_t skptrc = stackptr;
 	vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
 
 	for(int i = nargs-1; i >= 0; i--) {
-        argv_user[i] = argcopy_out(stackptr, args[i]);
+        skptrc =  argcopy_out(skptrc, args[i]);
+        argv_user[i] = skptrc;
 	}
     argv_user[nargs] = (vaddr_t) NULL;
 
 	for( int i = nargs; i >= 0; i--) {
 	    size_t vaddrs = sizeof(vaddr_t);
-	    stackptr -= vaddrs;
-	    copyout((void *)argv_user[i], (userptr_t) stackptr, vaddrs);
+        skptrc -= vaddrs;
+	    copyout((void *)argv_user[i], (userptr_t) skptrc, vaddrs);
 	}
 
 	/* Warp to user mode. */
-	enter_new_process(nargs /*argc*/, (userptr_t) stackptr /*userspace addr of argv*/,
-			  ROUNDUP(stackptr, 8), entrypoint);
+	enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
+			  ROUNDUP(skptrc, 8), entrypoint);
 
 	as_destroy(curproc_setas(as));
 	
