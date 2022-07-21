@@ -120,7 +120,7 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	for( int i = nargs; i >= 0; i--) {
 	    size_t vaddrs = sizeof(vaddr_t);
         skptrc -= vaddrs;
-	    copyout((void *)argv_user[i], (userptr_t) skptrc, vaddrs);
+	    copyout((void *) &argv_user[i], (userptr_t) skptrc, vaddrs);
 	}
 
 	/* Warp to user mode. */
