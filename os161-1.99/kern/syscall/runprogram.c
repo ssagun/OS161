@@ -46,13 +46,13 @@
 #include <test.h>
 #include <copyinout.h>
 
-vaddr_t
-argcopy_out(vaddr_t stackptr, char *str) {
+vaddr_t *
+argcopy_out(vaddr_t *stackptr, char *str) {
     int  n = sizeof(str)/sizeof(char *) + 1;
-    stackptr -= n;
-    stackptr -= stackptr % 4;
+    *stackptr -= n;
+    *stackptr -= *stackptr % 4;
     int an = n + (n / 4 + 1) * 4 - n;
-    copyoutstr(str, (userptr_t)stackptr, an, n-1);
+    copyoutstr(str, (userptr_t) *stackptr, an, n-1);
     return stackptr;
 }
 
@@ -115,12 +115,12 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	for(unsigned int i = 0; i < nargs; i++) {
         argv_user[i] = argcopy_out(&stackptr, args[i]);
 	}
-    argv_user[nargs] = NULL;
+    argv_user[nargs] = (vaddr_t) NULL;
 
 	for(unsigned int i = 0; i < nargs; i++) {
 	    size_t vaddrs = sizeof(vaddr_t);
 	    stackptr -= vaddrs;
-	    copyout(stackptr, argv_user[i]; vaddrs);
+	    copyout((void *)argv_user[i], (userptr_t) stackptr; vaddrs);
 	}
 
 	/* Warp to user mode. */
