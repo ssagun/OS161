@@ -48,11 +48,9 @@
 
 vaddr_t
 argcopy_out(vaddr_t stackptr, char *str) {
-    int  n = sizeof(str)/sizeof(char *) + 1;
-    stackptr -= n;
-    stackptr -= stackptr % 4;
-    int an = n + (n / 4 + 1) * 4 - n;
-    copyoutstr(str, (userptr_t) stackptr, an, n-1);
+    int  n = sizeof(str)/sizeof(char *);
+    int an = ROUNDUP(n, 4);
+    copyoutstr(str, (userptr_t) stackptr, an, &n);
     return stackptr;
 }
 
