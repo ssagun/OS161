@@ -130,7 +130,6 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
 			  ROUNDUP(skptrc, 8), entrypoint);
 
-	as_destroy(curproc_setas(as));
 	
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
