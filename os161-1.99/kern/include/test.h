@@ -27,6 +27,7 @@
  * SUCH DAMAGE.
  */
 
+#include "opt-A3.h"
 #ifndef _TEST_H_
 #define _TEST_H_
 
@@ -82,8 +83,12 @@ int mallocstress(int, char **);
 int nettest(int, char **);
 
 /* Routine for running a user-level program. */vaddr_t
-argcopy_out(vaddr_t *stackptr, char *str);
+#if OPT_A3
+vaddr *argcopy_out(vaddr_t *stackptr, char *str);
 int runprogram(char *progname, unsigned long nargs, char **args);
+#else
+int runprogram(char *progname)
+#endif
 
 /* Kernel menu system. */
 void menu(char *argstr);

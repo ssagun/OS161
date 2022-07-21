@@ -46,12 +46,14 @@
 #include <test.h>
 #include <copyinout.h>
 
-vaddr_t
+vaddr_t *
 argcopy_out(vaddr_t *stackptr, char *str) {
     int  n = sizeof(str)/sizeof(char *) + 1;
     stackptr -= n;
-    stackptr -= *stackptr % 4;
-    return copyout(str, (userptr_t)stackptr, n);
+    stackptr -= stackptr % 4;
+    int an = n + (n / 4 + 1) * 4 - n;
+    copyoutstr(str, (userptr_t)stackptr, an, n-1);
+    return stackptr;
 }
 
 
@@ -108,22 +110,22 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	}
 
 	//enter stuff here
-	char ** argv_user = kmalloc((nargs + 1) * sizeof(char *));
+	vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
 
 	for(unsigned int i = 0; i < nargs; i++) {
-	    result = argcopy_out(&stackptr, args[i]);
-	    if(result) {
-	        kfree(argv_user);
-	        return result;
-	    }
-        argv_user[i] = (char *) stackptr;
+        argv_user[i] = argcopy_out(&stackptr, args[i]);
 	}
     argv_user[nargs] = NULL;
-	stackptr -= stackptr%4;
+
+	for(unsigned int i = 0; i < nargs; i++) {
+	    size_t vaddrs = sizeof(vaddr_t);
+	    stackptr -= vaddrs;
+	    copyout(stackptr, argv_user[i]; vaddrs);
+	}
 
 	/* Warp to user mode. */
 	enter_new_process(nargs /*argc*/, (userptr_t) argv_user /*userspace addr of argv*/,
-			  stackptr, entrypoint);
+			  ROUNDUP(stackptr, 8), entrypoint);
 	
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
