@@ -110,13 +110,14 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	//enter stuff here
 	vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
 
-	for(unsigned int i = 0; i < nargs; i++) {
+	for(unsigned int i = nargs-1; i >= 0; i--) {
         argv_user[i] = argcopy_out(stackptr, args[i]);
 	}
     argv_user[nargs] = (vaddr_t) NULL;
 
-	for(unsigned int i = 0; i < nargs; i++) {
+	for(unsigned int i = nargs; i >= 0; i--) {
 	    size_t vaddrs = sizeof(vaddr_t);
+	    stackptr -= vaddrs;
 	    copyout((void *)argv_user[i], (userptr_t) stackptr, vaddrs);
 	}
 
@@ -124,7 +125,7 @@ runprogram(char *progname, unsigned long nargs, char **args)
 	enter_new_process(nargs /*argc*/, (userptr_t) stackptr /*userspace addr of argv*/,
 			  ROUNDUP(stackptr, 8), entrypoint);
 
-	as_destroy(as);
+	as_destroy(curproc_setas(as));
 	
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
