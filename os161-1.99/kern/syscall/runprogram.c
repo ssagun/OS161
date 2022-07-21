@@ -117,7 +117,6 @@ runprogram(char *progname, unsigned long nargs, char **args)
 
 	for(unsigned int i = 0; i < nargs; i++) {
 	    size_t vaddrs = sizeof(vaddr_t);
-	    stackptr -= vaddrs;
 	    copyout((void *)argv_user[i], (userptr_t) stackptr, vaddrs);
 	}
 
