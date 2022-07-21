@@ -87,7 +87,7 @@ int nettest(int, char **);
 vaddr_t argcopy_out(vaddr_t stackptr, char *str);
 int runprogram(char *progname, unsigned long nargs, char **args);
 #else
-int runprogram(char *progname)
+int runprogram(char *progname);
 #endif
 
 /* Kernel menu system. */
