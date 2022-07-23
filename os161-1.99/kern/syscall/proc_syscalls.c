@@ -1,6 +1,7 @@
 #include <types.h>
 #include <kern/errno.h>
 #include <kern/unistd.h>
+#include <kern/fcntl.h>
 #include <kern/wait.h>
 #include <lib.h>
 #include <syscall.h>
@@ -12,36 +13,38 @@
 #include <mips/trapframe.h>
 #include <clock.h>
 #include <array.h>
+#include <limits.h>
+#include <vfs.h>
 #include "opt-A2.h"
 
-  /* this implementation of sys__exit does not do anything with the exit code */
-  /* this needs to be fixed to get exit() and waitpid() working properly */
+/* this implementation of sys__exit does not do anything with the exit code */
+/* this needs to be fixed to get exit() and waitpid() working properly */
 
 void sys__exit(int exitcode) {
 
-  struct addrspace *as;
+    struct addrspace *as;
 
-  struct proc *p = curproc;
-  /* for now, just include this to keep the compiler from complaining about
-     an unused variable */
-  (void)exitcode;
+    struct proc *p = curproc;
+    /* for now, just include this to keep the compiler from complaining about
+       an unused variable */
+    (void)exitcode;
 
-  DEBUG(DB_SYSCALL,"Syscall: _exit(%d)\n",exitcode);
+    DEBUG(DB_SYSCALL,"Syscall: _exit(%d)\n",exitcode);
 
-  KASSERT(curproc->p_addrspace != NULL);
-  as_deactivate();
-  /*
-   * clear p_addrspace before calling as_destroy. Otherwise if
-   * as_destroy sleeps (which is quite possible) when we
-   * come back we'll be calling as_activate on a
-   * half-destroyed address space. This tends to be
-   * messily fatal.
-   */
-  as = curproc_setas(NULL);
-  as_destroy(as);
+    KASSERT(curproc->p_addrspace != NULL);
+    as_deactivate();
+    /*
+     * clear p_addrspace before calling as_destroy. Otherwise if
+     * as_destroy sleeps (which is quite possible) when we
+     * come back we'll be calling as_activate on a
+     * half-destroyed address space. This tends to be
+     * messily fatal.
+     */
+    as = curproc_setas(NULL);
+    as_destroy(as);
 
 #if OPT_A2
-  // for(unsigned i = 0; i < array_num(&p->p_children); i++) {
+    // for(unsigned i = 0; i < array_num(&p->p_children); i++) {
   unsigned i = 0;
   while(array_num(p->p_children)) {
       struct proc *temp_child = array_get(p->p_children, i);
@@ -58,12 +61,12 @@ void sys__exit(int exitcode) {
   }
 #endif
 
-  /* detach this thread from its process */
-  /* note: curproc cannot be used after this call */
-  proc_remthread(curthread);
+    /* detach this thread from its process */
+    /* note: curproc cannot be used after this call */
+    proc_remthread(curthread);
 
 #if OPT_A2
-  spinlock_acquire(&p->p_lock);
+    spinlock_acquire(&p->p_lock);
   if(p->p_parent != NULL && p->p_parent->p_exitstatus == 0) {
       p->p_exitstatus = 1;
       p->p_exitcode = exitcode;
@@ -75,14 +78,14 @@ void sys__exit(int exitcode) {
   }
 #else
 
-  /* if this is the last user process in the system, proc_destroy()
-     will wake up the kernel menu thread */
-  proc_destroy(p);
+    /* if this is the last user process in the system, proc_destroy()
+       will wake up the kernel menu thread */
+    proc_destroy(p);
 #endif
-  
-  thread_exit();
-  /* thread_exit() does not return, so we should never get here */
-  panic("return from thread_exit in sys_exit\n");
+
+    thread_exit();
+    /* thread_exit() does not return, so we should never get here */
+    panic("return from thread_exit in sys_exit\n");
 }
 
 
@@ -90,38 +93,38 @@ void sys__exit(int exitcode) {
 int
 sys_getpid(pid_t *retval)
 {
-  /* for now, this is just a stub that always returns a PID of 1 */
-  /* you need to fix this to make it work properly */
+    /* for now, this is just a stub that always returns a PID of 1 */
+    /* you need to fix this to make it work properly */
 #if OPT_A2
-  *retval = curproc->p_pid;
+    *retval = curproc->p_pid;
 #else
-  *retval = 1;
+    *retval = 1;
 #endif
-  return(0);
+    return(0);
 }
 
 /* stub handler for waitpid() system call                */
 
 int
 sys_waitpid(pid_t pid,
-	    userptr_t status,
-	    int options,
-	    pid_t *retval)
+            userptr_t status,
+            int options,
+            pid_t *retval)
 {
-  int exitstatus;
-  int result;
+    int exitstatus;
+    int result;
 
-  /* this is just a stub implementation that always reports an
-     exit status of 0, regardless of the actual exit status of
-     the specified process.   
-     In fact, this will return 0 even if the specified process
-     is still running, and even if it never existed in the first place.
+    /* this is just a stub implementation that always reports an
+       exit status of 0, regardless of the actual exit status of
+       the specified process.
+       In fact, this will return 0 even if the specified process
+       is still running, and even if it never existed in the first place.
 
-     Fix this!
-  */
+       Fix this!
+    */
 
 #if OPT_A2
-  struct proc *p = curproc;
+    struct proc *p = curproc;
   struct proc *temp_child;
   struct proc *iterator;
   unsigned i;
@@ -153,17 +156,17 @@ sys_waitpid(pid_t pid,
   exitstatus = _MKWAIT_EXIT(exitstatus);
 #endif
 
-  if (options != 0) {
-    return(EINVAL);
-  }
-  /* for now, just pretend the exitstatus is 0 */
- // exitstatus = 0;
-  result = copyout((void *)&exitstatus,status,sizeof(int));
-  if (result) {
-    return(result);
-  }
-  *retval = pid;
-  return(0);
+    if (options != 0) {
+        return(EINVAL);
+    }
+    /* for now, just pretend the exitstatus is 0 */
+    // exitstatus = 0;
+    result = copyout((void *)&exitstatus,status,sizeof(int));
+    if (result) {
+        return(result);
+    }
+    *retval = pid;
+    return(0);
 }
 
 #if OPT_A2
@@ -189,3 +192,128 @@ int sys_fork(pid_t *retval, struct trapframe *tf) {
     return 0;
 }
 #endif
+
+char **args_alloc(char **argv) {
+    int n = 0;
+    while(argv[n] != NULL) {
+        n++;
+    }
+    char **arg = kmalloc((n + 1) * sizeof(char *));
+    for(int i = 0; i < n; i++) {
+        size_t l = strlen(argv[i]) + 1;
+        arg[i] = kmalloc(l * sizeof(char));
+    }
+
+    return arg;
+}
+
+void args_free(char **arg) {
+    int n = 0;
+    while(arg[n] != NULL) {
+        n++;
+    }
+    for(int i = 0; i < n; i++) { // fix this
+        kfree(arg[i]);
+    }
+    kfree(arg);
+}
+
+int argcopy_in(char ** args, char **argv) {
+    int s = 0;
+    while(argv[s] != NULL) {
+        s++;
+    }
+    for(int i = 0; i < s; i++) {
+        size_t l = strlen(argv[i]) + 1;
+        copyinstr((const_userptr_t) argv[i], args[i], l * sizeof(char), &l);
+    }
+    args[s] = NULL;
+    return s-1;
+}
+
+
+int sys_execv(char *progname, char **argv) {
+    struct addrspace *as;
+    struct vnode *v;
+    vaddr_t entrypoint, stackptr;
+    int result;
+
+    int nargs = 0;
+    while(argv[nargs] != NULL) {
+        nargs++;
+    }
+
+    char **args = args_alloc(argv);
+    argcopy_in(args, argv);
+
+    /* Open the file. */
+    result = vfs_open(progname, O_RDONLY, 0, &v);
+    if (result) {
+        return result;
+    }
+
+    /* We should be a new process. */
+    KASSERT(curproc_getas() == NULL);
+    /* Create a new address space. */
+
+    struct addrspace *oas = curproc_getas();
+
+    as = as_create();
+    if (as ==NULL) {
+        vfs_close(v);
+        return ENOMEM;
+    }
+
+    /* Switch to it and activate it. */
+    curproc_setas(as);
+    as_activate();
+
+    // copy addrspace here
+
+    /* Load the executable. */
+    result = load_elf(v, &entrypoint);
+    if (result) {
+        /* p_addrspace will go away when curproc is destroyed */
+        vfs_close(v);
+        return result;
+    }
+
+    /* Done with the file now. */
+    vfs_close(v);
+
+    /* Define the user stack in the address space */
+    result = as_define_stack(as, &stackptr);
+    if (result) {
+        /* p_addrspace will go away when curproc is destroyed */
+        return result;
+    }
+
+    //enter stuff here
+    vaddr_t skptrc = stackptr;
+    vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
+
+    for(int i = nargs-1; i >= 0; i--) {
+        skptrc =  argcopy_out(skptrc, args[i]);
+        argv_user[i] = skptrc;
+    }
+    argv_user[nargs] = (vaddr_t) NULL;
+
+    for( int i = nargs; i >= 0; i--) {
+        size_t vaddrs = sizeof(vaddr_t);
+        skptrc -= vaddrs;
+        copyout((void *) &argv_user[i], (userptr_t) skptrc, vaddrs);
+    }
+
+    args_free(args);
+
+    as_destroy(oas);
+
+    /* Warp to user mode. */
+    enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
+                      ROUNDUP(skptrc, 8), entrypoint);
+
+
+    /* enter_new_process does not return. */
+    panic("enter_new_process returned\n");
+    return EINVAL;
+}

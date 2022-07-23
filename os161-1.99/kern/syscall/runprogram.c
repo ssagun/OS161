@@ -44,6 +44,19 @@
 #include <vfs.h>
 #include <syscall.h>
 #include <test.h>
+#include <copyinout.h>
+
+vaddr_t
+argcopy_out(vaddr_t stackptr, char *str) {
+    vaddr_t stkptrc = stackptr;
+    size_t  n = strlen(str);
+    size_t an = ROUNDUP(n+1, 4);
+    size_t al = an * sizeof(char);
+    stkptrc -= al;
+    copyoutstr(str, (userptr_t) stkptrc, an, &n);
+    return stkptrc;
+}
+
 
 /*
  * Load program "progname" and start running it in usermode.
@@ -52,57 +65,74 @@
  * Calls vfs_open on progname and thus may destroy it.
  */
 int
-runprogram(char *progname)
+runprogram(char *progname, unsigned long nargs, char **args)
 {
-	struct addrspace *as;
-	struct vnode *v;
-	vaddr_t entrypoint, stackptr;
-	int result;
+    struct addrspace *as;
+    struct vnode *v;
+    vaddr_t entrypoint, stackptr;
+    int result;
 
-	/* Open the file. */
-	result = vfs_open(progname, O_RDONLY, 0, &v);
-	if (result) {
-		return result;
-	}
+    /* Open the file. */
+    result = vfs_open(progname, O_RDONLY, 0, &v);
+    if (result) {
+        return result;
+    }
 
-	/* We should be a new process. */
-	KASSERT(curproc_getas() == NULL);
+    /* We should be a new process. */
+    KASSERT(curproc_getas() == NULL);
 
-	/* Create a new address space. */
-	as = as_create();
-	if (as ==NULL) {
-		vfs_close(v);
-		return ENOMEM;
-	}
+    /* Create a new address space. */
+    as = as_create();
+    if (as ==NULL) {
+        vfs_close(v);
+        return ENOMEM;
+    }
 
-	/* Switch to it and activate it. */
-	curproc_setas(as);
-	as_activate();
+    /* Switch to it and activate it. */
+    curproc_setas(as);
+    as_activate();
 
-	/* Load the executable. */
-	result = load_elf(v, &entrypoint);
-	if (result) {
-		/* p_addrspace will go away when curproc is destroyed */
-		vfs_close(v);
-		return result;
-	}
+    /* Load the executable. */
+    result = load_elf(v, &entrypoint);
+    if (result) {
+        /* p_addrspace will go away when curproc is destroyed */
+        vfs_close(v);
+        return result;
+    }
 
-	/* Done with the file now. */
-	vfs_close(v);
+    /* Done with the file now. */
+    vfs_close(v);
 
-	/* Define the user stack in the address space */
-	result = as_define_stack(as, &stackptr);
-	if (result) {
-		/* p_addrspace will go away when curproc is destroyed */
-		return result;
-	}
+    /* Define the user stack in the address space */
+    result = as_define_stack(as, &stackptr);
+    if (result) {
+        /* p_addrspace will go away when curproc is destroyed */
+        return result;
+    }
 
-	/* Warp to user mode. */
-	enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
-			  stackptr, entrypoint);
-	
-	/* enter_new_process does not return. */
-	panic("enter_new_process returned\n");
-	return EINVAL;
+    //enter stuff here
+    vaddr_t skptrc = stackptr;
+    vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
+
+    for(int i = nargs-1; i >= 0; i--) {
+        skptrc =  argcopy_out(skptrc, args[i]);
+        argv_user[i] = skptrc;
+    }
+    argv_user[nargs] = (vaddr_t) NULL;
+
+    for( int i = nargs; i >= 0; i--) {
+        size_t vaddrs = sizeof(vaddr_t);
+        skptrc -= vaddrs;
+        copyout((void *) &argv_user[i], (userptr_t) skptrc, vaddrs);
+    }
+
+    /* Warp to user mode. */
+    enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
+                      ROUNDUP(skptrc, 8), entrypoint);
+
+
+    /* enter_new_process does not return. */
+    panic("enter_new_process returned\n");
+    return EINVAL;
 }
 
