@@ -307,7 +307,9 @@ int sys_execv(char *progname, char **argv) {
 
     args_free(args);
 
-    as_destroy(oas);
+    as_deactivate();
+    as_destroy(oldas);
+    as_activate();
 
     /* Warp to user mode. */
     enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
