@@ -206,25 +206,25 @@ char **args_alloc(char **argv) {
     return arg;
 }
 
-void args_free(char **args) {
+void args_free(char **arg) {
     int n = 0;
-    while(argv[n] != NULL) {
+    while(arg[n] != NULL) {
         n++;
     }
     for(int i = 0; i < n; i++) { // fix this
-        kfree(args[i]);
+        kfree(arg[i]);
     }
-    kfree(args);
+    kfree(arg);
 }
 
 int argcopy_in(char ** args, char **argv) {
     int s = 0;
-    while(argv[n] != NULL) {
+    while(argv[s] != NULL) {
         s++;
     }
     for(int i = 0; i < s; i++) {
         size_t l = strlen(argv[i]) + 1;
-        copyintsr((const_userptr_t) argv[i], args[i], l * sizeof(char), &l);
+        copyinstr((const_userptr_t) argv[i], args[i], l * sizeof(char), &l);
     }
     args[s] = NULL;
     return s-1;
