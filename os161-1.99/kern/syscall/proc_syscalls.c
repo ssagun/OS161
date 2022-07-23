@@ -305,6 +305,14 @@ int sys_execv(char *progname, char **argv) {
         copyout((void *) &argv_user[i], (userptr_t) skptrc, vaddrs);
     }
 
+    vaddr_t ba = USERSTACK;
+
+    vaddr_t ap = skptrc;
+
+    vaddr_t offset = ROUNDUP(USERSTACK - skptrc,8);
+
+    skptrc = ba - offset;
+
     args_free(args);
 
     as_deactivate();
@@ -312,8 +320,8 @@ int sys_execv(char *progname, char **argv) {
     as_activate();
 
     /* Warp to user mode. */
-    enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
-                      ROUNDUP(skptrc, 8), entrypoint);
+    enter_new_process(nargs /*argc*/, (userptr_t) ap /*userspace addr of argv*/,
+                      skptrc, entrypoint);
 
 
     /* enter_new_process does not return. */
