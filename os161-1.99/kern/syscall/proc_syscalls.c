@@ -224,12 +224,12 @@ int argcopy_in(char ** args, char **argv) {
     while(argv[s] != NULL) {
         s++;
     }
-    for(int i = 0; i < s; i++) {
+    for(int i = 0; i <= s; i++) { // <=?
         size_t l = strlen(argv[i]) + 1;
         copyinstr((const_userptr_t) argv[i], args[i], l * sizeof(char), &l);
     }
-    args[s] = NULL;
-    return s-1;
+    args[s+1] = NULL;
+    return s;
 }
 
 
