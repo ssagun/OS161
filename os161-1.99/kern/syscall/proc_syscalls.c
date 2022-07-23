@@ -308,7 +308,7 @@ int sys_execv(char *progname, char **argv) {
     args_free(args);
 
     as_deactivate();
-    as_destroy(oldas);
+    as_destroy(oas);
     as_activate();
 
     /* Warp to user mode. */
