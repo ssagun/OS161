@@ -65,6 +65,11 @@ void sys__exit(int exitcode);
 int sys_getpid(pid_t *retval);
 int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval);
 
+char **args_alloc(char **argv);
+void args_free(char **arg);
+int argcopy_in(char ** args, char **argv) ;
+int sys_execv(char *progname, char **argv);
+
 #if OPT_A2
 int sys_fork(pid_t *retval, struct trapframe *tf);
 #endif

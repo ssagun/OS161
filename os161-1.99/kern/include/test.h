@@ -82,7 +82,10 @@ int mallocstress(int, char **);
 int nettest(int, char **);
 
 /* Routine for running a user-level program. */
-int runprogram(char *progname);
+int
+runprogram(char *progname, unsigned long nargs, char **args);
+vaddr_t
+argcopy_out(vaddr_t stackptr, char *str);
 
 /* Kernel menu system. */
 void menu(char *argstr);
