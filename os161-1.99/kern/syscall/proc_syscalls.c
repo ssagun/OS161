@@ -1,6 +1,7 @@
 #include <types.h>
 #include <kern/errno.h>
 #include <kern/unistd.h>
+#include <kern/fcntl.h>
 #include <kern/wait.h>
 #include <lib.h>
 #include <syscall.h>
