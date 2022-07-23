@@ -15,6 +15,7 @@
 #include <array.h>
 #include <limits.h>
 #include <vfs.h>
+#include <test.h>
 #include "opt-A2.h"
 
 /* this implementation of sys__exit does not do anything with the exit code */

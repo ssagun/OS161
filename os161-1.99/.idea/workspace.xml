@@ -31,10 +31,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="094818a6-292c-4278-95a3-195caf0bab81" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/include/syscall.h" beforeDir="false" afterPath="$PROJECT_DIR$/kern/include/syscall.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/include/test.h" beforeDir="false" afterPath="$PROJECT_DIR$/kern/include/test.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/startup/menu.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/startup/menu.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/syscall/proc_syscalls.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall/proc_syscalls.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
