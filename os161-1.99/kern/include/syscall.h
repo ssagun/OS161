@@ -66,7 +66,6 @@ int sys_getpid(pid_t *retval);
 int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval);
 int sys_execv(char *progname, char **argv);
 
-vaddr_t argcopy_out(vaddr_t stackptr, char *str);
 char **args_alloc(char **argv);
 void args_free(char **args);
 int argcopy_in(char ** args, char **argv);
