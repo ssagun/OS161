@@ -232,7 +232,7 @@ int argcopy_in(char ** args, char **argv) {
 }
 
 vaddr_t
-argcopy_out(vaddr_t stackptr, char *str) {
+argcopy_out_(vaddr_t stackptr, char *str) {
     vaddr_t stkptrc = stackptr;
     size_t  n = strlen(str);
     size_t an = ROUNDUP(n+1, 4);
@@ -304,7 +304,7 @@ int sys_execv(char *progname, char **argv) {
     vaddr_t *argv_user = kmalloc((nargs + 1) * sizeof(vaddr_t));
 
     for(int i = nargs-1; i >= 0; i--) {
-        skptrc =  argcopy_out(skptrc, args[i]);
+        skptrc =  argcopy_out_(skptrc, args[i]);
         argv_user[i] = skptrc;
     }
     argv_user[nargs] = (vaddr_t) NULL;
