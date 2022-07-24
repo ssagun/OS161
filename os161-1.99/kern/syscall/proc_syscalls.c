@@ -247,15 +247,16 @@ int sys_execv(char *progname, char **argv) {
     char **args = args_alloc(argv);
     argcopy_in(args, argv);
 
+    size_t plen = strelen(argv[0]) + 1;
+    size_t palloc = plen * sizeof(char);
+    char *pname = (char *)kmalloc(palloc);
+    copyin((ocnt_userptr_t)argv[0], pname, palloc);
+
     /* Open the file. */
-    result = vfs_open(progname, O_RDONLY, 0, &v);
+    result = vfs_open(pname, O_RDONLY, 0, &v);
     if (result) {
         return result;
     }
-
-    /* We should be a new process. */
-    KASSERT(curproc_getas() == NULL);
-    /* Create a new address space. */
 
     struct addrspace *oas = curproc_getas();
 
@@ -305,23 +306,13 @@ int sys_execv(char *progname, char **argv) {
         copyout((void *) &argv_user[i], (userptr_t) skptrc, vaddrs);
     }
 
-    vaddr_t ba = USERSTACK;
-
-    vaddr_t ap = skptrc;
-
-    vaddr_t offset = ROUNDUP(USERSTACK - skptrc,8);
-
-    skptrc = ba - offset;
-
     args_free(args);
 
-    as_deactivate();
     as_destroy(oas);
-    as_activate();
 
     /* Warp to user mode. */
-    enter_new_process(nargs /*argc*/, (userptr_t) ap /*userspace addr of argv*/,
-                      skptrc, entrypoint);
+    enter_new_process(nargs /*argc*/, (userptr_t) skptrc /*userspace addr of argv*/,
+                      ROUNDUP(skptrc, 8), entrypoint);
 
 
     /* enter_new_process does not return. */
