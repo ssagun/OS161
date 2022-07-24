@@ -246,15 +246,16 @@ int sys_execv(char *progname, char **argv) {
     char **args = args_alloc(argv);
     argcopy_in(args, argv);
 
+    size_t plen = strlen(progname) + 1;
+    size_t palloc = plen * sizeof(char);
+    char *pname = (char *)kmalloc(palloc);
+    copyinstr((const_userptr_t) progname, pname, palloc, &palloc);
+
     /* Open the file. */
-    result = vfs_open(progname, O_RDONLY, 0, &v);
+    result = vfs_open(pname, O_RDONLY, 0, &v);
     if (result) {
         return result;
     }
-
-    /* We should be a new process. */
-    KASSERT(curproc_getas() == NULL);
-    /* Create a new address space. */
 
     struct addrspace *oas = curproc_getas();
 
@@ -305,7 +306,7 @@ int sys_execv(char *progname, char **argv) {
     }
 
     args_free(args);
-
+    kfree(pname);
     as_destroy(oas);
 
     /* Warp to user mode. */
@@ -317,3 +318,4 @@ int sys_execv(char *progname, char **argv) {
     panic("enter_new_process returned\n");
     return EINVAL;
 }
+
