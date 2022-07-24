@@ -114,7 +114,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	uint32_t ehi, elo;
 	struct addrspace *as;
 	int spl;
-	bool ro;
+	bool ro = 0;
 
 	faultaddress &= PAGE_FRAME;
 
@@ -209,6 +209,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 
 
 	tlb_random(ehi, elo);
+    splx(spl);
 	return 0;
 
 	/*
