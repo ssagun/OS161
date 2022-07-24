@@ -250,7 +250,7 @@ int sys_execv(char *progname, char **argv) {
     size_t plen = strlen(progname) + 1;
     size_t palloc = plen * sizeof(char);
     char *pname = (char *)kmalloc(palloc);
-    copyinstr((const_userptr_t) progname, pname, palloc. &palloc);
+    copyinstr((const_userptr_t) progname, pname, palloc, &palloc);
 
     /* Open the file. */
     result = vfs_open(pname, O_RDONLY, 0, &v);
