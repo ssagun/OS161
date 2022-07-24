@@ -198,7 +198,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 		}
 		ehi = faultaddress;
 		if(as->as_loaded && ro)
-		    elp = paddr | TLBLO_VALID;
+		    elo = paddr | TLBLO_VALID;
 		else
 		    elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
