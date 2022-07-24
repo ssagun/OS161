@@ -198,7 +198,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 		}
 		ehi = faultaddress;
 		if(as->as_loaded && ro)
-		    el = paddr | TBLO_VALID;
+		    elp = paddr | TLBLO_VALID;
 		else
 		    elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
@@ -354,7 +354,7 @@ as_complete_load(struct addrspace *as)
 {
 	as->as_loaded = 1;
 
-    for (i=0; i<NUM_TLB; i++) {
+    for (int i=0; i<NUM_TLB; i++) {
         tlb_write(TLBHI_INVALID(i), TLBLO_INVALID(), i);
     }
 
