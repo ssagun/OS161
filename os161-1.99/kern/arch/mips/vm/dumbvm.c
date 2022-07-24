@@ -207,6 +207,11 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 		return 0;
 	}
 
+	ehi = faultaddress;
+    if(as->as_loaded && ro)
+        elo = paddr | TLBLO_VALID;
+    else
+        elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 
 	tlb_random(ehi, elo);
     splx(spl);
